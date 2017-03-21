@@ -3,6 +3,12 @@
   "plugins": ["testcafe"],
   "rules": {
     "import/no-unresolved": 0,
-    "import/no-unassigned-import": 0
+    "import/no-unassigned-import": 0,
+    "comma-dangle": [2, "only-multiline"],
+    "no-multi-spaces": [2, { exceptions: {
+      "Property": true,
+      "VariableDeclarator": true,
+      "ImportDeclaration": true
+    }}],
   }
 }

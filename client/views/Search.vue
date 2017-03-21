@@ -1,18 +1,24 @@
 <template>
   <div class="page">
+    <search-box></search-box>
     <counter></counter>
-    <p>
-      To get started, edit files in <code>./client</code> and save.
-    </p>
+
   </div>
 </template>
 
 <script>
 import Counter from 'components/Counter'
+import SearchBox from 'components/SearchBox'
 
 export default {
   components: {
-    Counter
+    Counter,
+    'search-box': SearchBox
+  },
+  methods: {
+    search (q) {
+
+    }
   }
 }
 </script>
