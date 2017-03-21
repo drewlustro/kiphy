@@ -1,14 +1,21 @@
 <template>
   <div class="giphy-figure">
-    <div v-if="type === 'gif'">
+    <div v-if="size === 'thumbnail'">
       <router-link :to="{ name: 'gif', params: { query: query, gifId: id }}">
         <img :src="stillUrl" :alt="id" :title="slug" class="still">
         <img :src="url" :alt="id" :title="slug" class="animated">
       </router-link>
       <input type="text" :value="id" @click="selectAll">
     </div>
-    <div v-else-if="type === 'video'">
-      Video '{{ url }}'
+    <div v-else-if="size === 'single'">
+      <img :src="originalStillUrl" :alt="id" :title="slug" class="still">
+      <img :src="originalUrl" :alt="id" :title="slug" class="animated">
+
+      <div class="metadata">
+        <strong>Dimensions:</strong> {{ width }} &times; {{ height }} pixels <br>
+        <strong>Size:</strong> {{ filesize }} bytes <br>
+        <strong>Frames:</strong> {{ frames }} <br>
+      </div>
     </div>
     <div v-else>
       Unknown / not enough props.
@@ -19,8 +26,16 @@
 <script>
 export default {
   name: 'giphy-figure',
-  // props: ['id', 'type', 'slug', 'gifUrl', 'videoUrl'],
-  props: ['apiData'],
+  props: {
+    apiData: {
+      required: true,
+    },
+    size: {
+      type: String,
+      default: 'thumbnail',
+      required: false
+    },
+  },
   computed: {
     id () {
       return this.apiData ? this.apiData.id : ''
@@ -32,25 +47,28 @@ export default {
       return this.apiData ? this.apiData.slug : ''
     },
     url () {
-      switch (this.type) {
-        case 'gif':
-          return this.apiData.images.fixed_height.url
-        case 'video':
-          return this.apiData.images.looping.mp4
-        default:
-          ; //
-      }
-      return false
+      return this.apiData.images.fixed_height.url
     },
     stillUrl () {
-      switch (this.type) {
-        case 'gif':
-        case 'video':
-          return this.apiData.images.fixed_height_still.url
-        default:
-          ; //
-      }
-      return false
+      return this.apiData.images.fixed_height_still.url
+    },
+    originalUrl () {
+      return this.apiData.images.original.url
+    },
+    originalStillUrl () {
+      return this.apiData.images.original_still.url
+    },
+    width () {
+      return this.apiData.images.original.width
+    },
+    height () {
+      return this.apiData.images.original.height
+    },
+    filesize () {
+      return this.apiData.images.original.size
+    },
+    frames () {
+      return this.apiData.images.original.frames
     },
     query () {
       if (this.$store.state.query) {
@@ -87,6 +105,11 @@ export default {
       display: none
     .animated
       display: block
+
+  .metadata
+    font-size: 1rem
+    text-align: left
+    padding: 1em
 
 .still
   display: block

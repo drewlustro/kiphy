@@ -1,10 +1,19 @@
 <template>
   <div class="page">
+    <router-link to="/">Kiphy</router-link>
+    <br>
+
     <search-box></search-box>
     <div v-if="gifId">
-      <giphy-figure v-if="single" :api-data="single"></giphy-figure>
+      <div class="search-breadcrumb">
+        <router-link :to="{ name: 'term', params: { query: query }}">{{ query }}</router-link> / {{ gifId }}
+      </div>
+      <giphy-figure v-if="single" size="single" :api-data="single"></giphy-figure>
     </div>
     <div v-else-if="gifs">
+      <div class="search-breadcrumb">
+        {{ query }} / {{ gifs.length }} results
+      </div>
       <ul id="gif-list" class="gif-list">
         <li v-for="g in gifs">
           <giphy-figure :api-data="g"></giphy-figure>
@@ -31,8 +40,9 @@ export default {
     }
   },
   computed: mapState({
-    gifs: state => state.giphy.response.data ? state.giphy.response.data : [],
-    single: state => state.giphy.single.data ? state.giphy.single.data : false,
+    gifs: state => state.giphy.searchResponse ? state.giphy.searchResponse : [],
+    single: state => state.giphy.single ? state.giphy.single : false,
+    draftQuery: state => state.draftQuery,
   }),
   components: {
     'search-box': SearchBox,
@@ -41,6 +51,9 @@ export default {
 
   created () {
     if (this.$route.params.gifId || this.$route.params.query) {
+      if (!this.draftQuery || this.draftQuery === '') {
+        this.$store.commit('updateDraftQuery', this.$route.params.query)
+      }
       this.search()
     }
   },
@@ -62,6 +75,13 @@ export default {
         this.$store.dispatch('search')
       }
     }
+  },
+
+  beforeRouteLeave (to, from, next) {
+    if (to.name === 'index' && from && from.name !== 'index') {
+      this.$store.dispatch('clearAll')
+    }
+    next()
   }
 
 }
@@ -81,4 +101,8 @@ export default {
     width: 50%
     overflow: hidden
 
+.search-breadcrumb
+  text-align: left
+  font-size: 1rem
+  padding: 1em
 </style>

@@ -11,20 +11,15 @@
 import { mapState } from 'vuex'
 
 export default {
-  computed: mapState(['draftQuery']),
 
-  data () {
-    return {
-      'query': ''
-    }
-  },
+  computed: mapState(['draftQuery']),
 
   methods: {
     updateDraftQuery (e) {
       this.$store.commit('updateDraftQuery', e.target.value)
     },
     search () {
-      this.$store.dispatch('search')
+      this.$router.push({ name: 'term', params: { query: this.$store.state.draftQuery }})
     }
   }
 }

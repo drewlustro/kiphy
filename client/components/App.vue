@@ -7,8 +7,11 @@
 <style lang="sass">
 body
   margin: 0
-  font-size: 2rem
+  font-size: 1.2rem
   font-family: -apple-system, BlinkMacSystemFont, 'avenir next', avenir, helvetica, 'helvetica neue', Ubuntu, 'segoe ui', arial, sans-serif
+
+img
+  max-width: 100%
 
 .page
   text-align: center

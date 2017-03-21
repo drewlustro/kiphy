@@ -19,7 +19,7 @@ export default new Router({
       props: true,
     },
     {
-      name: 'search',
+      name: 'term',
       path: '/:query',
       component: Search,
       props: true,
