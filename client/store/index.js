@@ -10,8 +10,12 @@ const state = {
   count: 0,
   draftQuery: '',
   query: '',
+  gifId: '',
   giphy: {
     isFetching: false,
+    single: {
+      data: undefined
+    },
     response: {
       data: []
     }
@@ -19,12 +23,7 @@ const state = {
 }
 
 const mutations = {
-  INCREMENT (state) {
-    state.count++
-  },
-  DECREMENT (state) {
-    state.count--
-  },
+  // search gif via term
   updateDraftQuery (state, query) {
     state.draftQuery = query
   },
@@ -33,6 +32,13 @@ const mutations = {
   },
   updateGiphyResponse (state, response) {
     state.giphy.response = response
+  },
+  // search gif via id
+  updateGifId (state, gifId) {
+    state.gifId = gifId
+  },
+  updateGiphySingle (state, gifSingle) {
+    state.giphy.single = gifSingle
   },
   setGiphyFetching (state, isFetching) {
     state.giphy.isFetching = isFetching
@@ -64,6 +70,52 @@ const actions = {
     }).then((response) => {
       if (response.status === 200) {
         commit('updateGiphyResponse', response.data)
+      } else {
+        console.err('Failed to query giphy api!', response)
+      }
+      commit('setGiphyFetching', false)
+    }).catch((error) => {
+      if (axios.isCancel(error)) {
+        console.log('Request cancelled.', error.message)
+      } else if (error.response) {
+        console.log(error.response.data)
+        console.log(error.response.status)
+        console.log(error.response.headers)
+      } else {
+        console.log('Axios Error: ', error.message)
+      }
+      commit('setGiphyFetching', false)
+    })
+  },
+
+  searchSingleGif ({ commit, state }) {
+    // try last local search results first
+    if (state.giphy.response && state.giphy.response.length > 0) {
+      let idx = state.giphy.response.findIndex(g => g.id === state.gifId)
+      if (idx !== -1) {
+        console.log(`Success! Found giphy data via local store. [idx: ${idx}]`)
+        commit('updateGiphySingle', state.giphy.response[idx])
+        return
+      }
+    }
+
+    if (state.giphy.isFetching) {
+      source.cancel('Operation cancelled by user; replaced by single-gif query.')
+    }
+
+    console.log(`*new* single search('${state.gifId}') ...`)
+    commit('updateQuery', state.draftQuery)
+    commit('setGiphyFetching', true)
+
+    /* eslint-disable camelcase */
+    axios.get(`http://api.giphy.com/v1/gifs/${state.gifId}`, {
+      cancelToken: source.token,
+      params: {
+        api_key: 'dc6zaTOxFJmzC',
+      }
+    }).then((response) => {
+      if (response.status === 200) {
+        commit('updateGiphySingle', response.data)
       } else {
         console.err('Failed to query giphy api!', response)
       }

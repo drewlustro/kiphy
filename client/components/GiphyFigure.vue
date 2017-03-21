@@ -1,7 +1,11 @@
 <template>
   <div class="giphy-figure">
     <div v-if="type === 'gif'">
-      <img :src="url" :alt="id" :title="slug">
+      <router-link :to="{ name: 'gif', params: { query: query, gifId: id }}">
+        <img :src="stillUrl" :alt="id" :title="slug" class="still">
+        <img :src="url" :alt="id" :title="slug" class="animated">
+      </router-link>
+      <input type="text" :value="id" @click="selectAll">
     </div>
     <div v-else-if="type === 'video'">
       Video '{{ url }}'
@@ -37,11 +41,34 @@ export default {
           ; //
       }
       return false
+    },
+    stillUrl () {
+      switch (this.type) {
+        case 'gif':
+        case 'video':
+          return this.apiData.images.fixed_height_still.url
+        default:
+          ; //
+      }
+      return false
+    },
+    query () {
+      if (this.$store.state.query) {
+        return this.$store.state.query
+      } else if (this.$route.params.query) {
+        return this.$route.params.query
+      }
+      return undefined
     }
   },
   data () {
     return {
 
+    }
+  },
+  methods: {
+    selectAll (e) {
+      e.target.select()
     }
   }
 }
@@ -52,4 +79,18 @@ export default {
   min-height: 200px
   border: 1px solid #ccc
   margin: 1em
+  cursor: pointer
+  text-align: center
+
+  &:hover
+    .still
+      display: none
+    .animated
+      display: block
+
+.still
+  display: block
+.animated
+  display: none
+
 </style>

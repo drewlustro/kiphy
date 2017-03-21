@@ -8,8 +8,22 @@ export default new Router({
   mode: 'hash',
   routes: [
     {
+      name: 'index',
       path: '/',
       component: Search
-    }
+    },
+    {
+      name: 'gif',
+      path: '/:query/:gifId',
+      component: Search,
+      props: true,
+    },
+    {
+      name: 'search',
+      path: '/:query',
+      component: Search,
+      props: true,
+    },
+
   ]
 })
