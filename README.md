@@ -1,6 +1,6 @@
 # Kiphy
 
-> Takehome assignment from Kit to be completed by Drew Lustro.
+> Takehome assignment
 
 ## Dependencies
 
