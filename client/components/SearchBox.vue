@@ -1,25 +1,37 @@
 <template>
   <div class="search-box-wrapper">
     <form v-on:submit.prevent>
-      <input type="text" :value="draftQuery" @input="updateDraftQuery" placeholder="Kiphy search..." >
+      <input type="text" v-model="query" placeholder="Kiphy search..." >
       <button @click="search()">Search</button>
     </form>
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex'
 
 export default {
-
-  computed: mapState(['draftQuery']),
-
+  props: {
+    draftQuery: {
+      type: String,
+      default: ''
+    }
+  },
+  created () {
+    if (this.draftQuery && this.draftQuery !== '') {
+      this.query = this.draftQuery
+    }
+  },
+  data () {
+    return {
+      query: ''
+    }
+  },
   methods: {
-    updateDraftQuery (e) {
-      this.$store.commit('updateDraftQuery', e.target.value)
-    },
+    // updateDraftQuery (e) {
+    //   this.$store.commit('updateDraftQuery', e.target.value)
+    // },
     search () {
-      this.$router.push({ name: 'term', params: { query: this.$store.state.draftQuery }})
+      this.$router.push({ name: 'search', params: { query: this.query }})
     }
   }
 }

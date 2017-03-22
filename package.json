@@ -1,6 +1,6 @@
 {
   "name": "kiphy",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Takehome assignment from Kit to be completed by Drew Lustro.",
   "main": "client/index.js",
   "scripts": {
@@ -25,7 +25,7 @@
     "vue": "^2.2.0",
     "vue-router": "^2.0.0",
     "vuex": "^2.0.0",
-    "vuex-router-sync": "^4.0.0"
+    "vuex-router-sync": "^4.1.2"
   },
   "devDependencies": {
     "autoprefixer": "^6.4.0",

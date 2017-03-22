@@ -7,37 +7,37 @@ const source = CancelToken.source()
 Vue.use(Vuex)
 
 const state = {
-  draftQuery: '',
   query: '',
   gifId: '',
+  isFetching: false,
   giphy: {
-    isFetching: false,
     single: undefined,
-    searchResponse: undefined
+    results: undefined,
+    library: {},
   },
 }
 
 const mutations = {
   // search gif via term
-  updateDraftQuery (state, query) {
-    state.draftQuery = query
-  },
+  // updateDraftQuery (state, query) {
+  //   state.draftQuery = query
+  // },
   updateQuery (state, query) {
     state.query = query
   },
-  updateGiphySearchResponse (state, response) {
-    state.giphy.searchResponse = response
-  },
-
-  // search gif via id
   updateGifId (state, gifId) {
     state.gifId = gifId
   },
-  updateGiphySingle (state, gifSingle) {
-    state.giphy.single = gifSingle
+
+  storeSearchResponse (state, response) {
+    state.giphy.results = response.data.data
   },
-  setGiphyFetching (state, isFetching) {
-    state.giphy.isFetching = isFetching
+  storeSingleResponse (state, response) {
+    state.giphy.single = response.data.data
+  },
+
+  setFetching (state, isFetching) {
+    state.isFetching = isFetching
   },
 
   // utility
@@ -46,30 +46,29 @@ const mutations = {
     state.query = ''
     state.draftQuery = ''
     // TODO: revise to repeatable defaults
-    state.giphy.isFetching = false
+    state.isFetching = false
     state.giphy.single = undefined
-    state.giphy.searchResponse = undefined
+    state.giphy.results = undefined
   }
 }
 
 const actions = {
-  search ({ commit, state }) {
-    if (!state.draftQuery || state.draftQuery === '') {
-      console.log(`No need to run new query; draftQuery is invalid.`)
+  search ({ commit, state }, query) {
+    if (!query || query === '') {
+      console.log(`No need to run new search; '${query}' is invalid.`)
       return
     }
 
-    if (state.giphy.isFetching) {
+    if (state.isFetching) {
       console.log('Canceled existing search.')
       source.cancel('Operation cancelled by user; replaced by new query.')
     }
 
-    console.log(`*new* broad search ('${state.draftQuery}')...`)
-    commit('updateQuery', state.draftQuery)
-    commit('setGiphyFetching', true)
+    commit('updateQuery', query)
+    commit('setFetching', true)
 
     /* eslint-disable camelcase */
-    axios.get('http://api.giphy.com/v1/gifs/search', {
+    return axios.get('http://api.giphy.com/v1/gifs/search', {
       cancelToken: source.token,
       params: {
         q: state.query,
@@ -77,11 +76,11 @@ const actions = {
       }
     }).then((response) => {
       if (response.status === 200) {
-        commit('updateGiphySearchResponse', response.data.data)
+        commit('storeSearchResponse', response)
       } else {
         console.err('Failed to query giphy api!', response)
       }
-      commit('setGiphyFetching', false)
+      commit('setFetching', false)
     }).catch((error) => {
       if (axios.isCancel(error)) {
         console.log('Request cancelled.', error.message)
@@ -92,41 +91,44 @@ const actions = {
       } else {
         console.log('Axios Error: ', error.message)
       }
-      commit('setGiphyFetching', false)
+      commit('setFetching', false)
     })
   },
 
-  searchSingleGif ({ commit, state }) {
+  searchByGifId ({ commit, state }, gifId) {
     // try last local search results first
-    if (state.giphy.searchResponse && state.giphy.searchResponse.length > 0) {
-      let idx = state.giphy.searchResponse.findIndex(g => g.id === state.gifId)
-      if (idx !== -1) {
-        commit('updateGiphySingle', state.giphy.searchResponse[idx])
-        return
-      }
+    // [REFACTOR] into main store insead of naive last search store
+    // if (state.giphy.results && state.giphy.results.length > 0) {
+    //   let idx = state.giphy.results.findIndex(g => g.id === state.gifId)
+    //   if (idx !== -1) {
+    //     commit('storeSingleResponse', state.giphy.results[idx])
+    //     return
+    //   }
+    // }
+    if (!gifId || gifId === '' || gifId === state.gifId) {
+      console.log(`No need to run new gifId query; '${gifId}' is invalid.`)
     }
-
-    if (state.giphy.isFetching) {
+    if (state.isFetching) {
       source.cancel('Operation cancelled by user; replaced by single-gif query.')
     }
 
-    console.log(`*new* single search('${state.gifId}') ...`)
-    commit('updateQuery', state.draftQuery)
-    commit('setGiphyFetching', true)
+    console.log(`*new* searchByGifId('${gifId}') ...`)
+    commit('updateGifId', gifId)
+    commit('setFetching', true)
 
     /* eslint-disable camelcase */
-    axios.get(`http://api.giphy.com/v1/gifs/${state.gifId}`, {
+    return axios.get(`http://api.giphy.com/v1/gifs/${state.gifId}`, {
       cancelToken: source.token,
       params: {
         api_key: 'dc6zaTOxFJmzC',
       }
     }).then((response) => {
       if (response.status === 200) {
-        commit('updateGiphySingle', response.data.data)
+        commit('storeSingleResponse', response)
       } else {
         console.err('Failed to query giphy api!', response)
       }
-      commit('setGiphyFetching', false)
+      commit('setFetching', false)
     }).catch((error) => {
       if (axios.isCancel(error)) {
         console.log('Request cancelled.', error.message)
@@ -137,12 +139,12 @@ const actions = {
       } else {
         console.log('Axios Error: ', error.message)
       }
-      commit('setGiphyFetching', false)
+      commit('setFetching', false)
     })
   },
 
   clearAll ({ commit, state }) {
-    if (state.giphy.isFetching) {
+    if (state.isFetching) {
       source.cancel('Operation cancelled by user; replaced by new query.')
     }
     commit('clearAll')

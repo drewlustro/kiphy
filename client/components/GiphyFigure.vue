@@ -1,7 +1,7 @@
 <template>
   <div class="giphy-figure">
     <div v-if="size === 'thumbnail'">
-      <router-link :to="{ name: 'gif', params: { query: query, gifId: id }}">
+      <router-link :to="{ name: 'single', params: { query: query, gifId: id }}">
         <img :src="stillUrl" :alt="id" :title="slug" class="still">
         <img :src="url" :alt="id" :title="slug" class="animated">
       </router-link>
