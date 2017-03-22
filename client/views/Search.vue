@@ -1,16 +1,9 @@
 <template>
   <div class="page">
-    <router-link to="/">Kiphy</router-link>
-    <br>
+    <h4>Search</h4>
+    <search-box :draft-query="query"></search-box>
 
-    <search-box></search-box>
-    <div v-if="gifId">
-      <div class="search-breadcrumb">
-        <router-link :to="{ name: 'term', params: { query: query }}">{{ query }}</router-link> / {{ gifId }}
-      </div>
-      <giphy-figure v-if="single" size="single" :api-data="single"></giphy-figure>
-    </div>
-    <div v-else-if="gifs">
+    <div v-if="gifs">
       <div class="search-breadcrumb">
         {{ query }} / {{ gifs.length }} results
       </div>
@@ -29,20 +22,10 @@ import GiphyFigure from 'components/GiphyFigure'
 import { mapState } from 'vuex'
 
 export default {
-  props: {
-    query: {
-      type: String,
-      required: false
-    },
-    gifId: {
-      type: String,
-      required: false
-    }
-  },
   computed: mapState({
-    gifs: state => state.giphy.searchResponse ? state.giphy.searchResponse : [],
+    gifs: state => state.giphy.results ? state.giphy.results : [],
     single: state => state.giphy.single ? state.giphy.single : false,
-    draftQuery: state => state.draftQuery,
+    query: state => state.route.params.query,
   }),
   components: {
     'search-box': SearchBox,
@@ -50,10 +33,7 @@ export default {
   },
 
   created () {
-    if (this.$route.params.gifId || this.$route.params.query) {
-      if (!this.draftQuery || this.draftQuery === '') {
-        this.$store.commit('updateDraftQuery', this.$route.params.query)
-      }
+    if (this.query) {
       this.search()
     }
   },
@@ -64,15 +44,8 @@ export default {
 
   methods: {
     search () {
-      if (this.$route.params.gifId) {
-        if (this.$route.params.query) {
-          this.$store.commit('updateQuery', this.$route.params.query)
-        }
-        this.$store.commit('updateGifId', this.$route.params.gifId)
-        this.$store.dispatch('searchSingleGif')
-      } else if (this.$route.params.query) {
-        this.$store.commit('updateDraftQuery', this.$route.params.query)
-        this.$store.dispatch('search')
+      if (this.query) {
+        this.$store.dispatch('search', this.query)
       }
     }
   },

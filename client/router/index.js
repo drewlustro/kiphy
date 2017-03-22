@@ -1,6 +1,9 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+
+import Index from '../views/Index'
 import Search from '../views/Search'
+import Single from '../views/Single'
 
 Vue.use(Router)
 
@@ -10,19 +13,17 @@ export default new Router({
     {
       name: 'index',
       path: '/',
-      component: Search
+      component: Index
     },
     {
-      name: 'gif',
+      name: 'single',
       path: '/:query/:gifId',
-      component: Search,
-      props: true,
+      component: Single,
     },
     {
-      name: 'term',
+      name: 'search',
       path: '/:query',
       component: Search,
-      props: true,
     },
 
   ]

@@ -1,5 +1,7 @@
 <template>
   <div id="app">
+    <router-link to="/">Kiphy</router-link>
+    <br>
     <router-view></router-view>
   </div>
 </template>
