@@ -115,7 +115,7 @@ export default {
       console.log('shuffle clicked!')
     },
     fave (e) {
-      console.log('fave clicked!')
+      this.$store.commit('ADD_FAVORITE', this.id)
     }
   }
 }

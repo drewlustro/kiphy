@@ -1,10 +1,19 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
+const sessionStore = require('store')
+const defaultsPlugin = require('store/plugins/defaults')
 const CancelToken = axios.CancelToken
 const source = CancelToken.source()
 
 Vue.use(Vuex)
+
+sessionStore.addPlugin(defaultsPlugin)
+sessionStore.defaults({
+  lastUpdated: undefined,
+  favorites: [],
+  library: [],
+})
 
 const state = {
   query: '',
@@ -13,8 +22,12 @@ const state = {
   giphy: {
     single: undefined,
     results: undefined,
-    library: {},
   },
+  session: {
+    lastUpdated: sessionStore.get('updated'),
+    favorites: sessionStore.get('favorites'),
+    library: sessionStore.get('library')
+  }
 }
 
 const mutations = {
@@ -35,9 +48,35 @@ const mutations = {
   storeSingleResponse (state, response) {
     state.giphy.single = response.data.data
   },
-
   setFetching (state, isFetching) {
     state.isFetching = isFetching
+  },
+
+  UPDATE_STORE_TIMESTAMP (state) {
+    state.session.lastUpdated = (new Date()).toISOString()
+    sessionStore.set('lastUpdated', state.session.lastUpdated)
+  },
+
+  ADD_FAVORITE (state, gifId) {
+    if (state.session.favorites.indexOf(gifId) !== -1) {
+      console.log(`${gifId} already in favorites. Ignoring...`)
+      return
+    }
+    console.log(`[ADD_FAVORITE] before: ${state.session.favorites}`)
+    state.session.favorites.push(gifId) // naive
+    sessionStore.set('favorites', state.session.favorites)
+    console.log(`[ADD_FAVORITE] after: ${sessionStore.get('favorites')}`)
+  },
+
+  REMOVE_FAVORITE (state, gifId) {
+    const favorites = state.session.favorites
+    const idx = favorites.indexof(gifId)
+    if (idx !== -1) {
+      const deleted = favorites.splice(idx, 1)
+      console.log(`Deleted ${deleted} from store at index ${idx}.`)
+      state.session.favorites = favorites
+      sessionStore.set('favorites', state.session.favorites)
+    }
   },
 
   // utility
