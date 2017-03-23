@@ -1,0 +1,67 @@
+
++breakpoint-set('to ems', true)
++breakpoint-set('default media', screen)
++breakpoint-set('no query fallbacks', true)
+
+/**
+ * Breakpoints Layout
+ *
+ * 1-column: one-column
+ * 2-column: compact
+ * 3-column: full (768px+ / min-height: 600px)
+ * Generous: xl (1600px+)
+ * Massive: xxl (2100px+)
+ */
++add-breakpoint('one-column', 'only screen' 1px 499px (orientation portrait))
++add-breakpoint('xs', 'only screen' 1px 499px)
+
+
+// roughly iphone1-4 portrait
++add-breakpoint('sm', 'only screen' 500px 767px)
++add-breakpoint('sm-plus', 'only screen' 500px)
+
+// alias for [sm -> full/lg)
++add-breakpoint('compact', 'only screen' 500px 1039px)
+// alias for [sm+)
++add-breakpoint('compact-plus', 'only screen' 500px)
+
+// roughly tablet or iphone5-iphone6 landscape
++add-breakpoint('md', 'only screen' 768px 999px)
++add-breakpoint('md-plus', 'only screen' 768px (min-height 740px))
++add-breakpoint('md-to-xl', 'only screen' 768px 1599px)
+
+
++add-breakpoint('desktop-width', 'only screen' 1079px)
+
++add-breakpoint('lg', 'only screen' 1000px 1599px)
++add-breakpoint('lg-plus', 'only screen' 1000px)
++add-breakpoint('full', 'only screen' 1000px (min-height 600px)) // alias for lg+ w/ height requirement
+
+
++add-breakpoint('xl', 'only screen' 1600px  (min-height 600px))
+
++add-breakpoint('xxl', 'only screen' 2100px  (min-height 600px))
+
+// special height breakpoints
+// +add-breakpoint('full-height', 'only screen' 768px (min-height))
+
++add-breakpoint('standard-res', max-resolution 1.49dppx)
++add-breakpoint('retina-min', min-resolution 1.5dppx)   // 144dpi+ (minimum "hidpi")
++add-breakpoint('retina-2x', min-resolution 2dppx)      // 300dpi+ (iphone4 and beyond)
++add-breakpoint('retina-3x', min-resolution 2.4dppx)    // 400dpi+ (iphone6 plus)
+
++add-breakpoint('portrait', 'only screen' (max-width 1600px) (orientation portrait))
++add-breakpoint('landscape', 'only screen' orientation landscape)
+
++add-breakpoint('touch', pointer coarse)
+
++add-breakpoint('touch-landscape', (orientation landscape), 'no-query' '.orientation-landscape.os-mobile')
++add-breakpoint('touch-portrait', (orientation portrait), 'no-query' '.orientation-portrait.os-mobile')
+
++add-breakpoint('touch-landscape-full', 'only screen' (min-width 768px) (max-width 1024px)  (min-height 745px) (orientation landscape), 'no-query' '.touch .orientation-landscape.os-mobile')
++add-breakpoint('touch-portrait-full', 'only screen' (min-height 1000px) (min-width 745px) (max-width 1024px) (orientation portrait), 'no-query' '.touch .orientation-portrait.os-mobile')
+
++add-breakpoint('touch-sm', (max-width 744px) (max-height 744px))
++add-breakpoint('touch-landscape-sm', (orientation landscape) (max-width 744px))
++add-breakpoint('touch-portrait-sm', (orientation portrait) (max-width 500px))
+

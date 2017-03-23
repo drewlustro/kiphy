@@ -1,0 +1,67 @@
+/**
+ * _main.sass
+ */
+
+@import '~normalize.css/normalize.css'
+@import '~styles/common'
+
+// border-box reset
+
+html
+  box-sizing: border-box
+
+*, *:before, *:after
+  box-sizing: inherit
+
+body
+  margin: 0
+  font-size: 1.2rem
+  font-family: -apple-system, BlinkMacSystemFont, 'avenir next', avenir, helvetica, 'helvetica neue', Ubuntu, 'segoe ui', arial, sans-serif
+
+img
+  max-width: 100%
+
+a
+  color: $charcoal
+
+input
+  padding: 0.5em
+  color: #666
+  border-radius: 2px
+  border-width: 1px
+  border-style: solid
+
+input[type=text],
+textarea
+  transition: all 0.30s ease-in-out
+  outline: none
+  padding: 3px 0px 3px 3px
+  margin: 5px 1px 3px 0px
+  border: 1px solid #DDDDDD
+
+
+input[type=text]:focus,
+textarea:focus
+  box-shadow: 0 0 5px rgba(81, 203, 238, 1)
+  padding: 3px 0px 3px 3px
+  margin: 5px 1px 3px 0px
+  border: 1px solid rgba(81, 203, 238, 1)
+
+
+%primary-column-bound
+  display: block
+  max-width: $primary-column-max-width
+  margin: 0 auto 1rem auto
+  padding-left: 1rem
+  padding-right: 1rem
+
+  +respond-to(desktop-width)
+    padding-left: 0
+    padding-right: 0
+
+h1.title
+  @extend %primary-column-bound
+  font-size: 1.5rem
+
+.breadcrumb
+  @extend %primary-column-bound
