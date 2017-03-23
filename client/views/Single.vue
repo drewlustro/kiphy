@@ -1,9 +1,9 @@
 <template>
   <div class="page">
-    <h4>Single</h4>
-    <search-box :draft-query="query"></search-box>
+    <navigation :draft-query="query"></navigation>
+    <h1 class="title">Gif Detail</h1>
     <div v-if="gifId">
-      <div class="search-breadcrumb">
+      <div class="breadcrumb">
         <router-link :to="{ name: 'search', params: { query: query }}">{{ query }}</router-link> / {{ gifId }}
       </div>
       <giphy-figure v-if="single" size="single" :api-data="single"></giphy-figure>
@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import SearchBox from 'components/SearchBox'
+import Navigation from 'components/Navigation'
 import GiphyFigure from 'components/GiphyFigure'
 import { mapState } from 'vuex'
 
@@ -24,7 +24,7 @@ export default {
     gifId: state => state.route.params.gifId
   }),
   components: {
-    'search-box': SearchBox,
+    'navigation': Navigation,
     'giphy-figure': GiphyFigure
   },
 

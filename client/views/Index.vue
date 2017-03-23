@@ -1,12 +1,13 @@
 <template>
   <div class="page">
-    <h4>Index</h4>
-    <search-box></search-box>
+    <navigation></navigation>
+    <h1 class="title">Index</h1>
+
   </div>
 </template>
 
 <script>
-import SearchBox from 'components/SearchBox'
+import Navigation from 'components/Navigation'
 import { mapState } from 'vuex'
 
 export default {
@@ -14,7 +15,7 @@ export default {
     // draftQuery: state => state.draftQuery,
   }),
   components: {
-    'search-box': SearchBox,
+    Navigation,
   },
 
   beforeRouteLeave (to, from, next) {

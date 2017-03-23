@@ -1,10 +1,10 @@
 <template>
   <div class="page">
-    <h4>Search</h4>
-    <search-box :draft-query="query"></search-box>
+    <navigation :draft-query="query"></navigation>
+    <h1 class="title">Search</h1>
 
     <div v-if="gifs">
-      <div class="search-breadcrumb">
+      <div class="breadcrumb">
         {{ query }} / {{ gifs.length }} results
       </div>
       <ul id="gif-list" class="gif-list">
@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import SearchBox from 'components/SearchBox'
+import Navigation from 'components/Navigation'
 import GiphyFigure from 'components/GiphyFigure'
 import { mapState } from 'vuex'
 
@@ -28,7 +28,7 @@ export default {
     query: state => state.route.params.query,
   }),
   components: {
-    'search-box': SearchBox,
+    'navigation': Navigation,
     'giphy-figure': GiphyFigure
   },
 
@@ -60,6 +60,9 @@ export default {
 }
 </script>
 <style lang="sass">
+
+@import ~styles/common
+
 .gif-list
   list-style: none
   padding: 0
@@ -68,11 +71,21 @@ export default {
   height: 100%
   display: flex
   flex-wrap: wrap
-  align-content: flex-start
+  justify-content: center
+  align-content: center
 
   li
-    width: 50%
     overflow: hidden
+    width: 100%
+    text-align: center
+    margin-bottom: 1em
+    // border: 1px solid $grey-15
+    // background-color: $grey-5
+
+    +respond-to(desktop-width)
+      width: 50%
+      // background-color: transparent
+      // border: 0
 
 .search-breadcrumb
   text-align: left

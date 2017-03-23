@@ -5,7 +5,7 @@
         <img :src="stillUrl" :alt="id" :title="slug" class="still">
         <img :src="url" :alt="id" :title="slug" class="animated">
       </router-link>
-      <input type="text" :value="id" @click="selectAll">
+      <!-- <input type="text" :value="id" @click="selectAll"> -->
     </div>
     <div v-else-if="size === 'single'">
       <img :src="originalStillUrl" :alt="id" :title="slug" class="still">
@@ -92,19 +92,24 @@ export default {
 }
 </script>
 <style lang="sass">
+@import ~styles/common
+
 .giphy-figure
-  min-width: 200px
-  min-height: 200px
-  border: 1px solid #ccc
-  margin: 1em
+  width: 100%
   cursor: pointer
   text-align: center
+  +respond-to(desktop-width)
+    margin: 1em
 
   &:hover
     .still
       display: none
     .animated
-      display: block
+      display: inline-block
+
+  a
+    display: block
+    text-align: center
 
   .metadata
     font-size: 1rem
@@ -112,7 +117,7 @@ export default {
     padding: 1em
 
 .still
-  display: block
+  display: inline-block
 .animated
   display: none
 
