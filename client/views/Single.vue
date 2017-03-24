@@ -54,13 +54,6 @@ export default {
       this.$store.dispatch('searchByGifId', this.gifId)
     }
   },
-
-  // beforeRouteLeave (to, from, next) {
-  //   if (to.name === to.from) {
-  //     this.$store.dispatch('clearAll')
-  //   }
-  //   next()
-  // }
 }
 </script>
 <style lang="sass">

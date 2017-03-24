@@ -51,8 +51,9 @@ export default {
   },
 
   beforeRouteLeave (to, from, next) {
-    if (to.name === 'index' && from && from.name !== 'index') {
-      this.$store.dispatch('clearAll')
+    // clear giphy API cache if leaving the search or view single gif view
+    if (to.name !== 'single' || to.name !== 'search') {
+      this.$store.dispatch('CLEAR_GIPHY_API_CACHE')
     }
     next()
   }

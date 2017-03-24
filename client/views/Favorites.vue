@@ -55,13 +55,6 @@ export default {
     }
   },
 
-  beforeRouteLeave (to, from, next) {
-    if (to.name === 'index' && from && from.name !== 'index') {
-      this.$store.dispatch('clearAll')
-    }
-    next()
-  }
-
 }
 </script>
 <style lang="sass">

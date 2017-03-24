@@ -20,13 +20,12 @@
         <span class="spec">Rating: {{ rating }} </span>
         <span class="spec">Uploaded {{ importDatetimeRelativeToNow }} </span><br>
 
-        <button class="shuffle" @click="shuffle">Shuffle</button>
+
+        <button v-if="query !== 'favorites'" class="shuffle" @click="shuffle">Shuffle</button>
       </div>
-
-
     </div>
-    <div v-else>
-
+    <div v-else class="hero-notice">
+      Oops! No gif data found.
     </div>
   </div>
 </template>
@@ -34,6 +33,7 @@
 <script>
 
 import moment from 'moment'
+import * as types from 'store/mutation-types'
 
 export default {
   name: 'giphy-figure',
@@ -103,7 +103,7 @@ export default {
       }
     },
     thumbnailLink () {
-      if (this.isFaved) {
+      if (this.query === 'favorites') {
         return {
           name: 'favorite-single',
           params: { gifId: this.id }
@@ -135,26 +135,22 @@ export default {
       e.target.select()
     },
     shuffle (e) {
-      e.target.disabled = true
       const nextGif = this.$store.getters.getRandomGifResult(this.id)
-      console.log('nextGif', nextGif)
       if (nextGif !== undefined) {
         this.$router.push({ name: 'single', params: { query: this.query, gifId: nextGif.id }})
         return true
       }
 
-      // refetch results and try again
-      console.log('No recent gif search results to work with, refetching...')
+      // giphy cache fail fallback: refetch results and try again
       this.$store.dispatch('search', this.query).then(() => {
-        console.log('Refected successfully. Trying to shuffle again.')
         this.shuffle()
       })
     },
     favorite (e) {
       if (!this.isFaved) {
-        this.$store.commit('ADD_FAVORITE', this.id)
+        this.$store.commit(types.ADD_FAVORITE, this.id)
       } else {
-        this.$store.commit('REMOVE_FAVORITE', this.id)
+        this.$store.commit(types.REMOVE_FAVORITE, this.id)
       }
     }
   }
