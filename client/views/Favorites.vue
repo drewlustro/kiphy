@@ -3,17 +3,20 @@
     <navigation :draft-query="query"></navigation>
     <h1 class="title">Favorites</h1>
 
-    <div class="breadcrumb">
-      {{ count }} favorites
-    </div>
-
     <div v-if="gifs">
-
-      <ul id="gif-list" class="gif-list">
-        <li v-for="g in gifs">
-          <giphy-figure :api-data="g"></giphy-figure>
-        </li>
-      </ul>
+      <div v-if="gifs.length <= 0" class="hero-notice">
+        No favorite GIF's saved yet.
+      </div>
+      <div v-else>
+        <div class="breadcrumb">
+          {{ count }} favorites
+        </div>
+        <ul id="gif-list" class="gif-list">
+          <li v-for="g in gifs">
+            <giphy-figure :api-data="g"></giphy-figure>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>
@@ -53,6 +56,12 @@ export default {
         this.$store.dispatch('searchFavorites')
       }
     }
+  },
+
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      vm.$store.dispatch('CLEAR_GIPHY_SEARCH_TERM')
+    })
   },
 
 }

@@ -19,6 +19,16 @@ export default {
   components: {
     Navigation,
   },
+  created () {
+
+  },
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      vm.$nextTick(() => {
+        document.getElementById('search-box-text-field').focus()
+      })
+    })
+  }
 }
 </script>
 <style lang="sass">

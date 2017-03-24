@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import * as types from './mutation-types'
-import { giphyApi, cancelTokenSource, handleGiphyApiException } from 'config'
+import { giphyApi, cancelTokenSource, handleGiphyApiException } from 'api'
 
 Vue.use(Vuex)
 
@@ -97,10 +97,13 @@ const mutations = {
     }
   },
 
+  [types.CLEAR_GIPHY_SEARCH_TERMS] (state) {
+    state.query = ''
+  },
+
   [types.CLEAR_GIPHY_API_CACHE] (state) {
     state.gifId = ''
     state.query = ''
-    // TODO: revise to repeatable defaults
     state.isApiFetching = false
     state.giphy.single = undefined
     state.giphy.results = undefined
@@ -140,7 +143,7 @@ const actions = {
   },
 
   searchByGifId ({ commit, state }, gifId) {
-    if (!gifId || gifId === '' || gifId === state.gifId) {
+    if (!gifId || gifId === '') {
       return Promise.reject(new Error(`No need to run new gifId query; '${gifId}' is invalid.`))
     }
 

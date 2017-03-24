@@ -1,7 +1,7 @@
 <template>
   <div class="search-box-wrapper">
     <form v-on:submit.prevent>
-      <input type="text" v-model="query" placeholder="search gifs..." >
+      <input id="search-box-text-field" type="text" v-model="query" placeholder="search gifs..." >
       <button @click="search()">Search</button>
     </form>
   </div>
@@ -31,6 +31,8 @@ export default {
       this.query = this.query.trim()
       if (this.query && this.query !== '') {
         this.$router.push({ name: 'search', params: { query: this.query }})
+      } else {
+        document.getElementById('search-box-text-field').focus()
       }
     }
   }
@@ -66,6 +68,7 @@ export default {
       text-transform: uppercase
       letter-spacing: 0.1em
       text-shadow: 0 1px 0 darken($dropbox-color, 50%)
+      cursor: pointer
 
     input[type=text], button
       max-height: 60px

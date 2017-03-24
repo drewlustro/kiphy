@@ -5,7 +5,6 @@
         <img :src="stillUrl" :alt="id" :title="slug" class="still">
         <img :src="url" :alt="id" :title="slug" class="animated">
       </router-link>
-      <!-- <input type="text" :value="id" @click="selectAll"> -->
     </div>
     <div v-else-if="size === 'single'">
       <div class="single">
@@ -21,7 +20,7 @@
         <span class="spec">Uploaded {{ importDatetimeRelativeToNow }} </span><br>
 
 
-        <button v-if="query !== 'favorites'" class="shuffle" @click="shuffle">Shuffle</button>
+        <button v-if="showShuffleButton" class="shuffle" @click="shuffle">Shuffle</button>
       </div>
     </div>
     <div v-else class="hero-notice">
@@ -102,8 +101,11 @@ export default {
         'active': this.isFaved
       }
     },
+    showShuffleButton () {
+      return this.$route.name === 'single'
+    },
     thumbnailLink () {
-      if (this.query === 'favorites') {
+      if (this.$route.name === 'favorites') {
         return {
           name: 'favorite-single',
           params: { gifId: this.id }
@@ -202,6 +204,7 @@ export default {
         font-weight: bold
 
   .single
+    transition: all 300ms ease
     +clearfix
     img
       width: 100%

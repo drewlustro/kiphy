@@ -2,12 +2,17 @@
   <div class="page">
     <navigation :draft-query="query"></navigation>
     <h1 class="title">GIF Detail</h1>
-
-    <div v-if="gifId">
+    <div v-if="isLoading" class="hero-notice" style="border: 0; background-color: transparent">
+      Loading...
+    </div>
+    <div v-else-if="gifId">
       <div class="breadcrumb">
-        <router-link :to="breadcrumbParentLink">{{ query ? query : 'favorites' }}</router-link> / {{ gifId }}
+        <router-link :to="breadcrumbParentLink"><strong>{{ query ? query : 'favorites' }}</strong></router-link> / {{ gifId }}
       </div>
       <giphy-figure v-if="single" size="single" :api-data="single"></giphy-figure>
+    </div>
+    <div v-else class="hero-notice">
+      Oops! No GIF specified. Search for more!
     </div>
   </div>
 </template>
@@ -49,11 +54,40 @@ export default {
     '$route': 'findById'
   },
 
-  methods: {
-    findById () {
-      this.$store.dispatch('searchByGifId', this.gifId)
+  data () {
+    return {
+      isLoading: false
     }
   },
+
+  methods: {
+    findById () {
+      this.$store.dispatch('searchByGifId', this.gifId).then(() => {
+        this.$nextTick(() => {
+          this.isLoading = false
+        })
+      }).catch((error) => {
+        if (error) {
+          console.warn(error.message)
+        }
+        this.isLoading = false
+      })
+    }
+  },
+
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      vm.isLoading = true
+    })
+  },
+  beforeRouteUpdate (to, from, next) {
+    this.isLoading = true
+    next()
+  },
+  beforeRouteLeave (to, from, next) {
+    this.isLoading = true
+    next()
+  }
 }
 </script>
 <style lang="sass">

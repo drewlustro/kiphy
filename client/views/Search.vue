@@ -3,15 +3,23 @@
     <navigation :draft-query="query"></navigation>
     <h1 class="title">Search</h1>
 
-    <div v-if="gifs">
-      <div class="breadcrumb">
-        {{ query }} / {{ gifs.length }} results
+    <div v-if="isLoading" class="hero-notice" style="border: 0; background-color: transparent">
+      Loading...
+    </div>
+    <div v-else-if="gifs">
+      <div v-if="gifs.length <= 0" class="hero-notice">
+        No gifs found searching for "{{ query }}"
       </div>
-      <ul id="gif-list" class="gif-list">
-        <li v-for="g in gifs">
-          <giphy-figure :api-data="g"></giphy-figure>
-        </li>
-      </ul>
+      <div v-else>
+        <div class="breadcrumb">
+          <strong>{{ query }}</strong> / {{ gifs.length }} results
+        </div>
+        <ul id="gif-list" class="gif-list">
+          <li v-for="g in gifs">
+            <giphy-figure :api-data="g"></giphy-figure>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>
@@ -42,19 +50,43 @@ export default {
     '$route': 'search'
   },
 
+  data () {
+    return {
+      isLoading: false
+    }
+  },
+
   methods: {
     search () {
       if (this.query) {
-        this.$store.dispatch('search', this.query)
+        this.$store.dispatch('search', this.query).then(() => {
+          this.$nextTick(() => {
+            this.isLoading = false
+          })
+        }).catch((error) => {
+          if (error) {
+            console.warn(error.message)
+          }
+          this.isLoading = false
+        })
       }
     }
   },
 
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      vm.isLoading = true
+    })
+  },
+  beforeRouteUpdate (to, from, next) {
+    this.isLoading = true
+    next()
+  },
   beforeRouteLeave (to, from, next) {
-    // clear giphy API cache if leaving the search or view single gif view
     if (to.name !== 'single' || to.name !== 'search') {
       this.$store.dispatch('CLEAR_GIPHY_API_CACHE')
     }
+    this.isLoading = true
     next()
   }
 
