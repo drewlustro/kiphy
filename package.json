@@ -1,13 +1,14 @@
 {
   "name": "kiphy",
-  "version": "0.6.0",
+  "version": "1.0.0",
   "description": "Takehome assignment from Kit to be completed by Drew Lustro.",
   "main": "client/index.js",
+  "repository": "https://github.com/drewlustro/kiphy",
   "scripts": {
-    "test": "testcafe all test/e2e/index.js --app \"npm run dev\" --app-init-delay 10000",
     "build": "webpack --config build/webpack.prod.js",
     "dev": "node build/server.js",
-    "lint": "xo **/client/**/*.{vue,js} !node_modules/**"
+    "lint": "xo **/client/**/*.{vue,js} !node_modules/**",
+    "test": "testcafe all test/e2e/index.js --app \"npm run dev\" --app-init-delay 10000"
   },
   "author": "Drew Lustro <drewlustro@gmail.com>",
   "license": "MIT",
@@ -62,5 +63,9 @@
     "webpack-dev-middleware": "^1.8.1",
     "webpack-hot-middleware": "^2.12.2",
     "xo": "^0.18.0"
+  },
+  "engines": {
+    "node": ">= 4.0.0",
+    "npm": ">= 3.0.0"
   }
 }
