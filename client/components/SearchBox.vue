@@ -27,11 +27,11 @@ export default {
     }
   },
   methods: {
-    // updateDraftQuery (e) {
-    //   this.$store.commit('updateDraftQuery', e.target.value)
-    // },
     search () {
-      this.$router.push({ name: 'search', params: { query: this.query }})
+      this.query = this.query.trim()
+      if (this.query && this.query !== '') {
+        this.$router.push({ name: 'search', params: { query: this.query }})
+      }
     }
   }
 }

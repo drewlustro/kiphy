@@ -1,14 +1,13 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import axios from 'axios'
 import * as types from './mutation-types'
-const sessionStore = require('store')
-const defaultsPlugin = require('store/plugins/defaults')
-const CancelToken = axios.CancelToken
-const source = CancelToken.source()
+import { giphyApi, cancelTokenSource, handleGiphyApiException } from 'config'
 
 Vue.use(Vuex)
 
+// persistent browser localStorage
+const sessionStore = require('store')
+const defaultsPlugin = require('store/plugins/defaults')
 sessionStore.addPlugin(defaultsPlugin)
 sessionStore.defaults({
   lastUpdated: undefined,
@@ -40,7 +39,6 @@ const getters = {
   },
   getRandomGifResult: state => (excludeId) => {
     if (!state.giphy.results || state.giphy.results.length <= 0) {
-      console.log('no results', state.giphy.results)
       return undefined
     }
     const filtered = state.giphy.results.filter(x => x.id !== excludeId)
@@ -48,7 +46,6 @@ const getters = {
       const randomIdx = Math.floor(Math.random() * filtered.length)
       return state.giphy.results[randomIdx]
     }
-    console.log('no filtered to choose from: ', filtered)
     return undefined
   }
 }
@@ -114,121 +111,90 @@ const mutations = {
 const actions = {
   search ({ commit, state }, query) {
     if (!query || query === '') {
-      console.log(`No need to run new search; '${query}' is invalid.`)
-      return
+      return Promise.reject(new Error(`No need to run new search; '${query}' is invalid.`))
     }
 
     if (state.isApiFetching) {
-      source.cancel('Operation cancelled by user; replaced by new query.')
+      cancelTokenSource.cancel('[API] Operation cancelled by user; replaced by new query.')
     }
+
+    console.log(`[API] search '${query}'  ...`)
 
     commit(types.UPDATE_QUERY, query)
     commit(types.SET_API_FETCHING, true)
 
     /* eslint-disable camelcase */
-    return axios.get('http://api.giphy.com/v1/gifs/search', {
-      cancelToken: source.token,
+    return giphyApi.get('/gifs/search', {
       params: {
-        q: state.query,
-        api_key: 'dc6zaTOxFJmzC',
+        q: state.query
       }
     }).then((response) => {
       if (response.status === 200) {
         commit(types.STORE_SEARCH_RESPONSE, response)
       } else {
-        console.err('Failed to query giphy api!', response)
+        console.err('[API] Failed to query giphy api!', response)
       }
-      commit(types.SET_API_FETCHING, false)
-    }).catch((error) => {
-      if (axios.isCancel(error)) {
-        console.log('Request cancelled.', error.message)
-      } else if (error.response) {
-        console.log(error.response.data)
-        console.log(error.response.status)
-      } else {
-        console.log('Axios Error: ', error.message)
-      }
-      commit(types.SET_API_FETCHING, false)
     })
+    .catch(handleGiphyApiException)
+    .then(() => commit(types.SET_API_FETCHING, false))
   },
 
   searchByGifId ({ commit, state }, gifId) {
     if (!gifId || gifId === '' || gifId === state.gifId) {
-      console.log(`No need to run new gifId query; '${gifId}' is invalid.`)
-    }
-    if (state.isApiFetching) {
-      source.cancel('Operation cancelled by user; replaced by single-gif query.')
+      return Promise.reject(new Error(`No need to run new gifId query; '${gifId}' is invalid.`))
     }
 
-    console.log(`*new* searchByGifId('${gifId}') ...`)
+    if (state.isApiFetching) {
+      cancelTokenSource.cancel('[API] Operation cancelled by user; replaced by single-gif query.')
+    }
+
+    console.log(`[API] searchByGifId '${gifId}' ...`)
+
     commit(types.UPDATE_GIF_ID, gifId)
     commit(types.SET_API_FETCHING, true)
 
-    /* eslint-disable camelcase */
-    return axios.get(`http://api.giphy.com/v1/gifs/${state.gifId}`, {
-      cancelToken: source.token,
-      params: {
-        api_key: 'dc6zaTOxFJmzC',
-      }
-    }).then((response) => {
+    return giphyApi.get(`/gifs/${state.gifId}`)
+    .then((response) => {
       if (response.status === 200) {
         commit(types.STORE_SINGLE_RESPONSE, response)
       } else {
-        console.err('Failed to query giphy api!', response)
+        console.err('[API] Failed to query giphy api!', response)
       }
-      commit(types.SET_API_FETCHING, false)
-    }).catch((error) => {
-      if (axios.isCancel(error)) {
-        console.log('Request cancelled.', error.message)
-      } else if (error.response) {
-        console.log(error.response.data)
-        console.log(error.response.status)
-        console.log(error.response.headers)
-      } else {
-        console.log('Axios Error: ', error.message)
-      }
-      commit(types.SET_API_FETCHING, false)
     })
+    .catch(handleGiphyApiException)
+    .then(() => commit(types.SET_API_FETCHING, false))
   },
 
   searchFavorites ({ commit, state, getters }) {
-    if (getters.favoriteIdsCount <= 0) return
-
-    if (state.isApiFetching) {
-      source.cancel('Operation cancelled by user; replaced by new query.')
+    if (getters.favoriteIdsCount <= 0) {
+      return Promise.reject(new Error(`No favorites to fetch.`))
     }
 
-    commit(types.SET_API_FETCHING, true)
+    if (state.isApiFetching) {
+      cancelTokenSource.cancel('[API] Operation cancelled by user; replaced by new query.')
+    }
+
     const ids = getters.favoriteIds.join(',')
-    /* eslint-disable camelcase */
-    return axios.get('http://api.giphy.com/v1/gifs', {
-      cancelToken: source.token,
-      params: {
-        ids: ids,
-        api_key: 'dc6zaTOxFJmzC',
-      }
+    console.log(`[API] searchByGifIds '${ids}' ...`)
+
+    commit(types.SET_API_FETCHING, true)
+
+    return giphyApi.get('/gifs', {
+      params: { ids }
     }).then((response) => {
       if (response.status === 200) {
         commit(types.STORE_FAVORITES_RESPONSE, response)
       } else {
-        console.err('Failed to query giphy api for favorites!', response)
+        console.err('[API] Failed to query giphy api for favorites!', response)
       }
-      commit(types.SET_API_FETCHING, false)
-    }).catch((error) => {
-      if (axios.isCancel(error)) {
-      } else if (error.response) {
-        console.log(error.response.data)
-        console.log(error.response.status)
-      } else {
-        console.log('Axios Error: ', error.message)
-      }
-      commit(types.SET_API_FETCHING, false)
     })
+    .catch(handleGiphyApiException)
+    .then(() => commit(types.SET_API_FETCHING, false))
   },
 
   [types.CLEAR_GIPHY_API_CACHE] ({ commit, state }) {
     if (state.isApiFetching) {
-      source.cancel('Operation cancelled by user; replaced by new query.')
+      cancelTokenSource.cancel('[API] Operation cancelled by user.')
     }
     commit(types.CLEAR_GIPHY_API_CACHE)
   }
@@ -239,9 +205,8 @@ const store = new Vuex.Store({
   getters,
   mutations,
   actions,
-  strict: true,
   types,
+  strict: true,
 })
-
 
 export default store
