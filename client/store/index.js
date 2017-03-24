@@ -11,7 +11,7 @@ Vue.use(Vuex)
 sessionStore.addPlugin(defaultsPlugin)
 sessionStore.defaults({
   lastUpdated: undefined,
-  favorites: [],
+  favoriteIds: [],
   library: [],
 })
 
@@ -22,19 +22,25 @@ const state = {
   giphy: {
     single: undefined,
     results: undefined,
+    favorites: undefined,
   },
   session: {
     lastUpdated: sessionStore.get('updated'),
-    favorites: sessionStore.get('favorites'),
+    favoriteIds: sessionStore.get('favoriteIds'),
     library: sessionStore.get('library')
   }
 }
 
+const getters = {
+  favoriteCount: state => state.session.favoriteIds.length,
+  favoriteIds: state => state.session.favoriteIds,
+  isFavoritedId: (state, getters) => (id) => {
+    return getters.favoriteIds.includes(id)
+  }
+}
+
 const mutations = {
-  // search gif via term
-  // updateDraftQuery (state, query) {
-  //   state.draftQuery = query
-  // },
+
   updateQuery (state, query) {
     state.query = query
   },
@@ -42,12 +48,16 @@ const mutations = {
     state.gifId = gifId
   },
 
-  storeSearchResponse (state, response) {
-    state.giphy.results = response.data.data
-  },
   storeSingleResponse (state, response) {
     state.giphy.single = response.data.data
   },
+  storeSearchResponse (state, response) {
+    state.giphy.results = response.data.data
+  },
+  storeFavoritesResponse (state, response) {
+    state.giphy.favorites = response.data.data
+  },
+
   setFetching (state, isFetching) {
     state.isFetching = isFetching
   },
@@ -58,24 +68,29 @@ const mutations = {
   },
 
   ADD_FAVORITE (state, gifId) {
-    if (state.session.favorites.indexOf(gifId) !== -1) {
-      console.log(`${gifId} already in favorites. Ignoring...`)
+    if (state.session.favoriteIds.indexOf(gifId) !== -1) {
+      console.log(`${gifId} already in favoriteIds. Ignoring...`)
       return
     }
-    console.log(`[ADD_FAVORITE] before: ${state.session.favorites}`)
-    state.session.favorites.push(gifId) // naive
-    sessionStore.set('favorites', state.session.favorites)
-    console.log(`[ADD_FAVORITE] after: ${sessionStore.get('favorites')}`)
+    state.session.favoriteIds.push(gifId) // naive
+    sessionStore.set('favoriteIds', state.session.favoriteIds)
+    console.log(`[ADD_FAVORITE] after: ${sessionStore.get('favoriteIds')}`)
+
+    // will force refetch when visiting /favorites
+    state.giphy.favorites = undefined
   },
 
   REMOVE_FAVORITE (state, gifId) {
-    const favorites = state.session.favorites
-    const idx = favorites.indexof(gifId)
+    const favoriteIds = state.session.favoriteIds
+    const idx = favoriteIds.indexOf(gifId)
     if (idx !== -1) {
-      const deleted = favorites.splice(idx, 1)
+      const deleted = favoriteIds.splice(idx, 1)
       console.log(`Deleted ${deleted} from store at index ${idx}.`)
-      state.session.favorites = favorites
-      sessionStore.set('favorites', state.session.favorites)
+      state.session.favoriteIds = favoriteIds
+      sessionStore.set('favoriteIds', state.session.favoriteIds)
+
+      // will force refetch when visiting /favorites
+      state.giphy.favorites = undefined // known inefficient
     }
   },
 
@@ -135,15 +150,6 @@ const actions = {
   },
 
   searchByGifId ({ commit, state }, gifId) {
-    // try last local search results first
-    // [REFACTOR] into main store insead of naive last search store
-    // if (state.giphy.results && state.giphy.results.length > 0) {
-    //   let idx = state.giphy.results.findIndex(g => g.id === state.gifId)
-    //   if (idx !== -1) {
-    //     commit('storeSingleResponse', state.giphy.results[idx])
-    //     return
-    //   }
-    // }
     if (!gifId || gifId === '' || gifId === state.gifId) {
       console.log(`No need to run new gifId query; '${gifId}' is invalid.`)
     }
@@ -182,6 +188,47 @@ const actions = {
     })
   },
 
+  searchFavorites ({ commit, state, getters }) {
+    if (getters.favoriteIdsCount <= 0) {
+      console.log('No favoriteIds to fetch.')
+      return
+    }
+
+    if (state.isFetching) {
+      console.log('Canceled existing search.')
+      source.cancel('Operation cancelled by user; replaced by new query.')
+    }
+
+    commit('setFetching', true)
+    const ids = getters.favoriteIds.join(',')
+    /* eslint-disable camelcase */
+    return axios.get('http://api.giphy.com/v1/gifs', {
+      cancelToken: source.token,
+      params: {
+        ids: ids,
+        api_key: 'dc6zaTOxFJmzC',
+      }
+    }).then((response) => {
+      if (response.status === 200) {
+        commit('storeFavoritesResponse', response)
+      } else {
+        console.err('Failed to query giphy api for favorites!', response)
+      }
+      commit('setFetching', false)
+    }).catch((error) => {
+      if (axios.isCancel(error)) {
+        console.log('Request cancelled.', error.message)
+      } else if (error.response) {
+        console.log(error.response.data)
+        console.log(error.response.status)
+        console.log(error.response.headers)
+      } else {
+        console.log('Axios Error: ', error.message)
+      }
+      commit('setFetching', false)
+    })
+  },
+
   clearAll ({ commit, state }) {
     if (state.isFetching) {
       source.cancel('Operation cancelled by user; replaced by new query.')
@@ -192,6 +239,7 @@ const actions = {
 
 const store = new Vuex.Store({
   state,
+  getters,
   mutations,
   actions,
   strict: true,

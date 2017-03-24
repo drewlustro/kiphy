@@ -4,6 +4,7 @@ import Router from 'vue-router'
 import Index from '../views/Index'
 import Search from '../views/Search'
 import Single from '../views/Single'
+import Favorites from '../views/Favorites'
 
 Vue.use(Router)
 
@@ -14,6 +15,16 @@ export default new Router({
       name: 'index',
       path: '/',
       component: Index
+    },
+    {
+      name: 'favorites',
+      path: '/favorites',
+      component: Favorites
+    },
+    {
+      name: 'favorite-single',
+      path: '/favorites/:gifId',
+      component: Single,
     },
     {
       name: 'single',

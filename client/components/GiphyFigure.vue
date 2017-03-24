@@ -1,7 +1,7 @@
 <template>
   <div class="giphy-figure">
     <div v-if="size === 'thumbnail'">
-      <router-link :to="{ name: 'single', params: { query: query, gifId: id }}" class="thumbnail-link">
+      <router-link :to="thumbnailLink" class="thumbnail-link">
         <img :src="stillUrl" :alt="id" :title="slug" class="still">
         <img :src="url" :alt="id" :title="slug" class="animated">
       </router-link>
@@ -9,16 +9,16 @@
     </div>
     <div v-else-if="size === 'single'">
       <div class="single">
-        <img :src="originalStillUrl" :alt="id" :title="slug" class="still">
-        <img :src="originalUrl" :alt="id" :title="slug" class="animated">
+        <img :src="originalUrl" :alt="id" :title="slug">
       </div>
 
       <div class="metadata">
-        <a href="#" v-on:click.prevent class="fave" @click="fave">Fave</a>
-        <strong>Dimensions:</strong> {{ width }} &times; {{ height }} pixels <br>
-        <strong>Source:</strong> <a :href="source" target="_blank" rel="noopener">{{ source }}</a><br>
-        <strong>Rating:</strong> {{ rating }} <br>
-        Uploaded {{ importDatetimeRelativeToNow }} <br>
+        <button v-on:click.prevent :class="favoriteClass" @click="favorite">&#9733;</button>
+
+        <span class="spec">Dimensions: {{ width }} &times; {{ height }} pixels</span>
+        <span class="spec">Source: <a :href="source" target="_blank" rel="noopener" class="source">{{ source }}</a></span>
+        <span class="spec">Rating: {{ rating }} </span>
+        <span class="spec">Uploaded {{ importDatetimeRelativeToNow }} </span><br>
 
         <button class="shuffle" @click="shuffle">Shuffle</button>
       </div>
@@ -93,11 +93,34 @@ export default {
     importDatetimeRelativeToNow () {
       return moment(this.importDatetime).fromNow()
     },
+    isFaved () {
+      return this.$store.getters.isFavoritedId(this.id)
+    },
+    favoriteClass () {
+      return {
+        'favorite': true,
+        'active': this.isFaved
+      }
+    },
+    thumbnailLink () {
+      if (this.isFaved) {
+        return {
+          name: 'favorite-single',
+          params: { gifId: this.id }
+        }
+      }
+      return {
+        name: 'single',
+        params: { query: this.query, gifId: this.id }
+      }
+    },
     query () {
       if (this.$store.state.query) {
         return this.$store.state.query
       } else if (this.$route.params.query) {
         return this.$route.params.query
+      } else if (this.isFaved) {
+        return 'favorites'
       }
       return undefined
     }
@@ -114,8 +137,12 @@ export default {
     shuffle (e) {
       console.log('shuffle clicked!')
     },
-    fave (e) {
-      this.$store.commit('ADD_FAVORITE', this.id)
+    favorite (e) {
+      if (!this.isFaved) {
+        this.$store.commit('ADD_FAVORITE', this.id)
+      } else {
+        this.$store.commit('REMOVE_FAVORITE', this.id)
+      }
     }
   }
 }
@@ -147,19 +174,29 @@ export default {
     padding: 1em
     line-height: 1.41
 
-    .fave
+    .favorite
       float: right
       width: 50%
       max-width: 100px
-      margin-right: 1em
-      margin-top: 1em
+      font-size: 3rem
+      padding: 1rem
+      text-align: right
+      color: $grey-30
+      font-weight: bold
+      border: 0
+      background-color: transparent
+      cursor: pointer
+      +no-outline
+
+      &.active
+        color: gold
+        font-weight: bold
 
   .single
     +clearfix
     img
       width: 100%
-      max-width: 100%
-      max-height: 60vh
+      max-width: 100vmin
       overflow: hidden
 
   .shuffle
@@ -181,4 +218,8 @@ export default {
 .animated
   display: none
 
+.spec
+  display: block
+  +text-tail-truncate($single-line: true)
+  max-width: 70vw
 </style>
