@@ -51,6 +51,7 @@ export default {
       margin-right: 0.5em
       font-size: 2rem
       padding: 10px 20px
+      width: calc(100% - 4em - 0.5em)
       +respond-to(desktop-width)
         max-width: none
 

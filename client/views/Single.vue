@@ -1,7 +1,8 @@
 <template>
   <div class="page">
     <navigation :draft-query="query"></navigation>
-    <h1 class="title">Gif Detail</h1>
+    <h1 class="title">GIF Detail</h1>
+
     <div v-if="gifId">
       <div class="breadcrumb">
         <router-link :to="breadcrumbParentLink">{{ query ? query : 'favorites' }}</router-link> / {{ gifId }}
@@ -24,7 +25,7 @@ export default {
       } else if (this.$route.name === 'favorite-single') {
         return { name: 'favorites' }
       }
-      return { name: 'index'}
+      return { name: 'index' }
     },
     ...mapState({
       // gifs: state => state.giphy.results ? state.giphy.results : [],
@@ -54,6 +55,12 @@ export default {
     }
   },
 
+  // beforeRouteLeave (to, from, next) {
+  //   if (to.name === to.from) {
+  //     this.$store.dispatch('clearAll')
+  //   }
+  //   next()
+  // }
 }
 </script>
 <style lang="sass">

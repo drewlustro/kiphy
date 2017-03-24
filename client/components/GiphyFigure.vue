@@ -26,7 +26,7 @@
 
     </div>
     <div v-else>
-      Unknown / not enough props.
+
     </div>
   </div>
 </template>
@@ -135,7 +135,20 @@ export default {
       e.target.select()
     },
     shuffle (e) {
-      console.log('shuffle clicked!')
+      e.target.disabled = true
+      const nextGif = this.$store.getters.getRandomGifResult(this.id)
+      console.log('nextGif', nextGif)
+      if (nextGif !== undefined) {
+        this.$router.push({ name: 'single', params: { query: this.query, gifId: nextGif.id }})
+        return true
+      }
+
+      // refetch results and try again
+      console.log('No recent gif search results to work with, refetching...')
+      this.$store.dispatch('search', this.query).then(() => {
+        console.log('Refected successfully. Trying to shuffle again.')
+        this.shuffle()
+      })
     },
     favorite (e) {
       if (!this.isFaved) {
@@ -166,6 +179,11 @@ export default {
   .thumbnail-link
     display: block
     text-align: center
+    img
+      width: 100%
+      max-width: 100vmin
+      +respond-to(desktop-width)
+        max-width: 40vmin
 
   .metadata
     @extend %primary-column-bound

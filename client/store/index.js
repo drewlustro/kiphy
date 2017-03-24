@@ -36,6 +36,19 @@ const getters = {
   favoriteIds: state => state.session.favoriteIds,
   isFavoritedId: (state, getters) => (id) => {
     return getters.favoriteIds.includes(id)
+  },
+  getRandomGifResult: state => (excludeId) => {
+    if (!state.giphy.results || state.giphy.results.length <= 0) {
+      console.log('no results', state.giphy.results)
+      return undefined
+    }
+    const filtered = state.giphy.results.filter(x => x.id !== excludeId)
+    if (filtered.length > 0) {
+      const randomIdx = Math.floor(Math.random() * filtered.length)
+      return state.giphy.results[randomIdx]
+    }
+    console.log('no filtered to choose from: ', filtered)
+    return undefined
   }
 }
 
@@ -103,6 +116,7 @@ const mutations = {
     state.isFetching = false
     state.giphy.single = undefined
     state.giphy.results = undefined
+    state.giphy.favorites = undefined
   }
 }
 
@@ -114,7 +128,6 @@ const actions = {
     }
 
     if (state.isFetching) {
-      console.log('Canceled existing search.')
       source.cancel('Operation cancelled by user; replaced by new query.')
     }
 
@@ -141,7 +154,6 @@ const actions = {
       } else if (error.response) {
         console.log(error.response.data)
         console.log(error.response.status)
-        console.log(error.response.headers)
       } else {
         console.log('Axios Error: ', error.message)
       }
@@ -189,13 +201,9 @@ const actions = {
   },
 
   searchFavorites ({ commit, state, getters }) {
-    if (getters.favoriteIdsCount <= 0) {
-      console.log('No favoriteIds to fetch.')
-      return
-    }
+    if (getters.favoriteIdsCount <= 0) return
 
     if (state.isFetching) {
-      console.log('Canceled existing search.')
       source.cancel('Operation cancelled by user; replaced by new query.')
     }
 
@@ -217,11 +225,9 @@ const actions = {
       commit('setFetching', false)
     }).catch((error) => {
       if (axios.isCancel(error)) {
-        console.log('Request cancelled.', error.message)
       } else if (error.response) {
         console.log(error.response.data)
         console.log(error.response.status)
-        console.log(error.response.headers)
       } else {
         console.log('Axios Error: ', error.message)
       }
