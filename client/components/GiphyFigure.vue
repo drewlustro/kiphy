@@ -159,18 +159,13 @@ export default {
 <style lang="sass">
 @import ~styles/common
 
+
 .giphy-figure
   width: 100%
   cursor: pointer
   text-align: center
   +respond-to(desktop-width)
     margin: 1em 0
-
-  &:hover
-    .still
-      display: none
-    .animated
-      display: inline-block
 
   .thumbnail-link
     display: block
@@ -226,14 +221,21 @@ export default {
     text-transform: uppercase
     letter-spacing: 0.1em
 
+.spec
+  display: block
+  +text-tail-truncate($single-line: true)
+  max-width: 70vw
 
 .still
   display: inline-block
 .animated
   display: none
 
-.spec
-  display: block
-  +text-tail-truncate($single-line: true)
-  max-width: 70vw
+@media (hover: hover)
+  .giphy-figure:hover
+    .still
+      display: none
+    .animated
+      display: inline-block
+
 </style>

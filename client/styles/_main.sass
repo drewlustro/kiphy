@@ -39,7 +39,6 @@ textarea
   margin: 5px 1px 3px 0px
   border: 1px solid #DDDDDD
 
-
 input[type=text]:focus,
 textarea:focus
   box-shadow: 0 0 5px rgba(81, 203, 238, 1)
@@ -47,23 +46,27 @@ textarea:focus
   margin: 5px 1px 3px 0px
   border: 1px solid rgba(81, 203, 238, 1)
 
-
-
-
 h1.title
   @extend %primary-column-bound
   font-size: 1.5rem
 
 .breadcrumb
   @extend %primary-column-bound
+  font-size: 1.2rem
 
 .hero-notice
   @extend %primary-column-bound
+  margin-left: 1rem
+  margin-right: 1rem
   border: 2px solid #ddd
   border-radius: 2px
-  padding: 4em
+  padding: 2em
   text-align: center
   font-size: 2em
   background-color: #fafafa
   color: #aaa
   font-weight: 200
+  margin-left: 1rem
+  margin-right: 1rem
+  +respond-to(desktop-width)
+    padding: 4em

@@ -59,10 +59,10 @@ export default {
       flex-grow: 0
       min-width: 4em
       background-color: $dropbox-color
-      padding: 10px 30px
+      padding: 8px 24px
       border: 1px solid darken($dropbox-color, 10%)
       color: mix($dropbox-color, $white, 22%)
-      font-size: 1.1rem
+      font-size: 1rem
       text-transform: uppercase
       letter-spacing: 0.1em
       text-shadow: 0 1px 0 darken($dropbox-color, 50%)

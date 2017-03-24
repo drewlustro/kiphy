@@ -30,20 +30,14 @@
 +add-breakpoint('md-plus', 'only screen' 768px (min-height 740px))
 +add-breakpoint('md-to-xl', 'only screen' 768px 1599px)
 
-
 +add-breakpoint('desktop-width', 'only screen' 1079px)
 
 +add-breakpoint('lg', 'only screen' 1000px 1599px)
 +add-breakpoint('lg-plus', 'only screen' 1000px)
 +add-breakpoint('full', 'only screen' 1000px (min-height 600px)) // alias for lg+ w/ height requirement
 
-
 +add-breakpoint('xl', 'only screen' 1600px  (min-height 600px))
-
 +add-breakpoint('xxl', 'only screen' 2100px  (min-height 600px))
-
-// special height breakpoints
-// +add-breakpoint('full-height', 'only screen' 768px (min-height))
 
 +add-breakpoint('standard-res', max-resolution 1.49dppx)
 +add-breakpoint('retina-min', min-resolution 1.5dppx)   // 144dpi+ (minimum "hidpi")
@@ -54,14 +48,7 @@
 +add-breakpoint('landscape', 'only screen' orientation landscape)
 
 +add-breakpoint('touch', pointer coarse)
++add-breakpoint('hover', hover)
 
-+add-breakpoint('touch-landscape', (orientation landscape), 'no-query' '.orientation-landscape.os-mobile')
-+add-breakpoint('touch-portrait', (orientation portrait), 'no-query' '.orientation-portrait.os-mobile')
 
-+add-breakpoint('touch-landscape-full', 'only screen' (min-width 768px) (max-width 1024px)  (min-height 745px) (orientation landscape), 'no-query' '.touch .orientation-landscape.os-mobile')
-+add-breakpoint('touch-portrait-full', 'only screen' (min-height 1000px) (min-width 745px) (max-width 1024px) (orientation portrait), 'no-query' '.touch .orientation-portrait.os-mobile')
-
-+add-breakpoint('touch-sm', (max-width 744px) (max-height 744px))
-+add-breakpoint('touch-landscape-sm', (orientation landscape) (max-width 744px))
-+add-breakpoint('touch-portrait-sm', (orientation portrait) (max-width 500px))
 
