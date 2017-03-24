@@ -1,6 +1,6 @@
 {
   "name": "kiphy",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Takehome assignment from Kit to be completed by Drew Lustro.",
   "main": "client/index.js",
   "scripts": {
